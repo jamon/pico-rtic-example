@@ -1,116 +1,77 @@
-# `cortex-m-quickstart`
+# `pico-rtic-example`
 
-> A template for building applications for ARM Cortex-M microcontrollers
+> Example project for Raspberry Pi PICO that uses [rp-rs/rp2040-hal/rp-pico](https://github.com/rp-rs/rp-hal) [rtic](https://github.com/rtic-rs/cortex-m-rtic) and [rp2040-monotonic](https://github.com/korken89/rp2040-monotonic) and [defmt](https://github.com/knurling-rs/defmt)
 
-This project is developed and maintained by the [Cortex-M team][team].
+Based on [rp2040-project-template](https://github.com/rp-rs/rp2040-project-template), [cortex-m-quickstart](https://docs.rs/cortex-m-quickstart/0.3.1/cortex_m_quickstart/), and [rp-pico rtic example](https://github.com/rp-rs/rp-hal/blob/main/boards/rp-pico/examples/pico_rtic.rs).  See also [defmt-app-template](https://github.com/rtic-rs/defmt-app-template)
 
-## Dependencies
+## Hardware Setup
+  - Program a Raspberry Pi PICO to be a CMSIS-DAP probe using [DapperMime](https://github.com/majbthrd/DapperMime)
+    - Download from [DapperMime Releases](https://github.com/majbthrd/DapperMime/releases)
+    - Install onto the PICO you'll use as the probe
+  - Connect the probe PICO to the PICO you'll be programming
+    - [digikey guide](https://www.digikey.com/en/maker/projects/raspberry-pi-pico-and-rp2040-cc-part-2-debugging-with-vs-code/470abc7efb07432b82c95f6f67f184c0) covers this well, though you don't need to connect the UART between the devices.
+    - in short:
 
-To build embedded programs using this template you'll need:
+| Probe PICO | PICO to be programmed |
+| ---------- | --------------------- |
+| VSYS       | VSYS                  |
+| GND        | GND                   |
+| GP2        | SWCLK                 |
+| GP3        | SWDIO                 |
 
-- Rust 1.31, 1.30-beta, nightly-2018-09-13 or a newer toolchain. e.g. `rustup
-  default beta`
+## Software Setup
 
-- The `cargo generate` subcommand. [Installation
-  instructions](https://github.com/ashleygwilliams/cargo-generate#installation).
+- Rust
+  - Install [rustup](https://rustup.rs/)
+  - `rustup self update` - update rustup
+  - `rustup update stable` - update rust
+  - `rustup target add thumbv6m-none-eabi` - add cortex m0 compilation target for cross-compiling
 
-- `rust-std` components (pre-compiled `core` crate) for the ARM Cortex-M
-  targets. Run:
+- Rust Tools
+  - `cargo install flip-link` - linker to enable [flip-link](https://github.com/knurling-rs/flip-link)
+  - `cargo install probe-run` - run using probe (default, configured runner in .cargo/config.toml)
+  - `cargo install elf2uf2-rs --locked` - build uf2 files (configure runner in .cargo/config.toml)
+  - probe-rs (not currently working; don't use)
+    - `cargo install --force --git https://github.com/probe-rs/probe-rs probe-rs-debugger`
 
-``` console
-$ rustup target add thumbv6m-none-eabi thumbv7m-none-eabi thumbv7em-none-eabi thumbv7em-none-eabihf
-```
 
-## Using this template
+- VS Code
+  - Install [VS Code](https://code.visualstudio.com/)
+  - Extensions:
+    - [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=matklad.rust-analyzer)
+    - [PIO ASM Syntax Highlighting](https://marketplace.visualstudio.com/items?itemName=chris-hock.pioasm)
 
-**NOTE**: This is the very short version that only covers building programs. For
-the long version, which additionally covers flashing, running and debugging
-programs, check [the embedded Rust book][book].
+- Rust helper commands (only used to follow cortex_m_quickstart, used to build this example; not needed)
+  - `cargo install cargo-edit`
+  - `cargo install cargo-generate`
 
-[book]: https://rust-embedded.github.io/book
+## Running
 
-0. Before we begin you need to identify some characteristics of the target
-  device as these will be used to configure the project:
+`cargo run`
 
-- The ARM core. e.g. Cortex-M3.
+That's about it!
 
-- Does the ARM core include an FPU? Cortex-M4**F** and Cortex-M7**F** cores do.
+## Helpful Documentation
 
-- How much Flash memory and RAM does the target device has? e.g. 256 KiB of
-  Flash and 32 KiB of RAM.
+High-level documentation:
+  - [rust book](https://doc.rust-lang.org/book/)
+  - [rust embedded book](https://rust-embedded.github.io/book)
+  - [rtic by example book](https://rtic.rs/1.0/book/en/preface.html)
 
-- Where are Flash memory and RAM mapped in the address space? e.g. RAM is
-  commonly located at address `0x2000_0000`.
+Setup Guide for rp-rs (covers getting rust running on the pi pico or similar boards, including probe-run, elf2uf2-rs, etc)
+  - [rp-rs README.md](https://github.com/rp-rs/rp-hal)
 
-You can find this information in the data sheet or the reference manual of your
-device.
+Other useful information:
+  - [Writing embedded drivers in rust](https://hboeving.dev/blog/rust-2c-driver-p1/)
 
-In this example we'll be using the STM32F3DISCOVERY. This board contains an
-STM32F303VCT6 microcontroller. This microcontroller has:
+# TODO
 
-- A Cortex-M4F core that includes a single precision FPU
-
-- 256 KiB of Flash located at address 0x0800_0000.
-
-- 40 KiB of RAM located at address 0x2000_0000. (There's another RAM region but
-  for simplicity we'll ignore it).
-
-1. Instantiate the template.
-
-``` console
-$ cargo generate --git https://github.com/rust-embedded/cortex-m-quickstart
- Project Name: app
- Creating project called `app`...
- Done! New project created /tmp/app
-
-$ cd app
-```
-
-2. Set a default compilation target. There are four options as mentioned at the
-   bottom of `.cargo/config`. For the STM32F303VCT6, which has a Cortex-M4F
-   core, we'll pick the `thumbv7em-none-eabihf` target.
-
-``` console
-$ tail -n6 .cargo/config
-```
-
-``` toml
-[build]
-# Pick ONE of these compilation targets
-# target = "thumbv6m-none-eabi"    # Cortex-M0 and Cortex-M0+
-# target = "thumbv7m-none-eabi"    # Cortex-M3
-# target = "thumbv7em-none-eabi"   # Cortex-M4 and Cortex-M7 (no FPU)
-target = "thumbv7em-none-eabihf" # Cortex-M4F and Cortex-M7F (with FPU)
-```
-
-3. Enter the memory region information into the `memory.x` file.
-
-``` console
-$ cat memory.x
-/* Linker script for the STM32F303VCT6 */
-MEMORY
-{
-  /* NOTE 1 K = 1 KiBi = 1024 bytes */
-  FLASH : ORIGIN = 0x08000000, LENGTH = 256K
-  RAM : ORIGIN = 0x20000000, LENGTH = 40K
-}
-```
-
-4. Build the template application or one of the examples.
-
-``` console
-$ cargo build
-```
-
-## VS Code
-
-This template includes launch configurations for debugging CortexM programs with Visual Studio Code located in the `.vscode/` directory.  
-See [.vscode/README.md](./.vscode/README.md) for more information.  
-If you're not using VS Code, you can safely delete the directory from the generated project.
+- Update .vscode/* for rp-pico
+- get breakpoints/debugging working
 
 # License
 
-This template is licensed under either of
+This project is licensed under either of
 
 - Apache License, Version 2.0 ([LICENSE-APACHE](LICENSE-APACHE) or
   http://www.apache.org/licenses/LICENSE-2.0)
@@ -124,12 +85,3 @@ at your option.
 Unless you explicitly state otherwise, any contribution intentionally submitted
 for inclusion in the work by you, as defined in the Apache-2.0 license, shall be
 dual licensed as above, without any additional terms or conditions.
-
-## Code of Conduct
-
-Contribution to this crate is organized under the terms of the [Rust Code of
-Conduct][CoC], the maintainer of this crate, the [Cortex-M team][team], promises
-to intervene to uphold that code of conduct.
-
-[CoC]: https://www.rust-lang.org/policies/code-of-conduct
-[team]: https://github.com/rust-embedded/wg#the-cortex-m-team
