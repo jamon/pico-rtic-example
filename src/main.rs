@@ -77,7 +77,7 @@ mod app {
         let mut spi = spi.init(
             &mut resets,
             clocks.peripheral_clock.freq(),
-            embedded_time::rate::Hertz(8_000_000_u32),
+            embedded_time::rate::Hertz(1_000_000_u32),
             &embedded_hal::spi::MODE_0
         );
 
@@ -109,12 +109,11 @@ mod app {
     fn bar(mut c: bar::Context) {
         info!("bar");
         c.shared.spi.lock(|s| {
-            // s.send(1u16);
-            sendSpi(s, 8_u8);
+            send_spi(s, 0xaa_u8);
         });
         bar::spawn_after(1.secs()).unwrap();
     }
-    fn sendSpi<S>(spi: S, word: u8) 
+    fn send_spi<S>(spi: &mut S, word: u8) 
     where S: embedded_hal::spi::FullDuplex<u8> {
         spi.send(word);
     }
