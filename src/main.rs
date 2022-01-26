@@ -83,6 +83,7 @@ mod app {
 
         let mono = rp2040_monotonic::Rp2040Monotonic::new(c.device.TIMER);
         foo::spawn_after(1.secs()).unwrap();
+        bar::spawn_after(1.secs()).unwrap();
 
         (Shared { led, spi }, Local {}, init::Monotonics(mono))
     }
@@ -107,16 +108,14 @@ mod app {
     )]
     fn bar(mut c: bar::Context) {
         info!("bar");
-
-
         c.shared.spi.lock(|s| {
             // s.send(1u16);
             sendSpi(s, 8_u8);
         });
-        foo::spawn_after(1.secs()).unwrap();
+        bar::spawn_after(1.secs()).unwrap();
     }
     fn sendSpi<S>(spi: S, word: u8) 
     where S: embedded_hal::spi::FullDuplex<u8> {
-        spi.send(word.into());
+        spi.send(word);
     }
 }
