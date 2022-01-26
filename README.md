@@ -5,6 +5,8 @@
 Based on [rp2040-project-template](https://github.com/rp-rs/rp2040-project-template), [cortex-m-quickstart](https://docs.rs/cortex-m-quickstart/0.3.1/cortex_m_quickstart/), and [rp-pico rtic example](https://github.com/rp-rs/rp-hal/blob/main/boards/rp-pico/examples/pico_rtic.rs).  See also [defmt-app-template](https://github.com/rtic-rs/defmt-app-template)
 
 Other examples of pico + rtic, by kalkyl [here](https://github.com/kalkyl/rp-rtic)
+Generic (but somewhat out of date as of now) RTIC examples [here](https://github.com/rtic-rs/rtic-examples)
+Teensy has some good RTIC Examples [here](https://github.com/mciantyre/teensy4-rs/tree/master/examples)
 
 ## Hardware Setup
   - Program a Raspberry Pi PICO to be a CMSIS-DAP probe using [DapperMime](https://github.com/majbthrd/DapperMime)
