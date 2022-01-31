@@ -67,6 +67,10 @@ Setup Guide for rp-rs (covers getting rust running on the pi pico or similar boa
 
 Other useful information:
   - [Writing embedded drivers in rust](https://hboeving.dev/blog/rust-2c-driver-p1/)
+  - [Embedonomicon](https://docs.rust-embedded.org/embedonomicon/preface.html)
+  - [Embedonomicon - Concurrency](https://japaric.github.io/embedonomicon/concurrency.html)
+  - [embedded-hal Documentation](https://docs.rs/embedded-hal/latest/embedded_hal/)
+  - [nb (non-blocking abstraction used by embedded-hal)](https://docs.rs/nb/latest/nb/)
 
 # TODO
 
