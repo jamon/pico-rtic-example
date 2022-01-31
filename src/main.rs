@@ -67,14 +67,14 @@ mod app {
         let _lora_sck = pins.gpio18.into_mode::<hal::gpio::FunctionSpi>();
         let _lora_mosi = pins.gpio19.into_mode::<hal::gpio::FunctionSpi>();
         let _lora_miso = pins.gpio16.into_mode::<hal::gpio::FunctionSpi>();
-        let lora_nss = pins.gpio17.into_push_pull_output();
-        let lora_dio0 = pins.gpio21.into_push_pull_output();
-        let lora_reset = pins.gpio20.into_push_pull_output();
+        let _lora_nss = pins.gpio17.into_push_pull_output();
+        let _lora_dio0 = pins.gpio21.into_push_pull_output();
+        let _lora_reset = pins.gpio20.into_push_pull_output();
         // let spi = hal::spi::Spi::<_, _, 8>::new(c.device.SPI0);
         
         // spi.init(&mut resets, clocks.peripheral_clock.freq(), 16_000_000u32.Hz(), &embedded_hal::spi::MODE_0);
         let spi = hal::Spi::<_, _, 8>::new(c.device.SPI0);
-        let mut spi = spi.init(
+        let spi = spi.init(
             &mut resets,
             clocks.peripheral_clock.freq(),
             embedded_time::rate::Hertz(1_000_000_u32),
@@ -115,6 +115,6 @@ mod app {
     }
     fn send_spi<S>(spi: &mut S, word: u8) 
     where S: embedded_hal::spi::FullDuplex<u8> {
-        spi.send(word);
+        let _ = spi.send(word);
     }
 }
